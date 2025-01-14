@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace FileHandling
+{
+    public class Student
+    {
+        public int RollNo { get; set; }
+        public string Subject { get; set; }
+        public int Marks { get; set; }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Student> students = new List<Student>();
+            string filePath = "StudentData.dat"; // Binary file
+
+            Console.WriteLine("Enter the number of students:");
+            int count = int.Parse(Console.ReadLine());
+
+            // Input details of students
+            for (int i = 0; i < count; i++)
+            {
+                Console.WriteLine($"\nEnter details for student {i + 1}:");
+                Console.Write("Roll No: ");
+                int rollNo = int.Parse(Console.ReadLine());
+
+                Console.Write("Subject: ");
+                string subject = Console.ReadLine();
+
+                Console.Write("Marks: ");
+                int marks = int.Parse(Console.ReadLine());
+
+                students.Add(new Student { RollNo = rollNo, Subject = subject, Marks = marks });
+            }
+
+            // Save data to binary file
+            SaveToBinaryFile(students, filePath);
+
+            // Read data from binary file and display it
+            List<Student> fileData = ReadFromBinaryFile(filePath);
+            Console.WriteLine("\nData from binary file:");
+            foreach (var student in fileData)
+            {
+                Console.WriteLine($"Roll No: {student.RollNo}, Subject: {student.Subject}, Marks: {student.Marks}");
+            }
+        }
+
+        static void SaveToBinaryFile(List<Student> students, string filePath)
+        {
+            using (FileStream fs = new FileStream(filePath, FileMode.Create))
+            using (BinaryWriter writer = new BinaryWriter(fs))
+            {
+                writer.Write(students.Count); // Write the number of students
+                foreach (var student in students)
+                {
+                    writer.Write(student.RollNo);
+                    writer.Write(student.Subject);
+                    writer.Write(student.Marks);
+                }
+            }
+            Console.WriteLine($"\nData saved to binary file: {filePath}");
+        }
+
+        static List<Student> ReadFromBinaryFile(string filePath)
+        {
+            List<Student> students = new List<Student>();
+
+            if (File.Exists(filePath))
+            {
+                using (FileStream fs = new FileStream(filePath, FileMode.Open))
+                using (BinaryReader reader = new BinaryReader(fs))
+                {
+                    int count = reader.ReadInt32(); // Read the number of students
+                    for (int i = 0; i < count; i++)
+                    {
+                        int rollNo = reader.ReadInt32();
+                        string subject = reader.ReadString();
+                        int marks = reader.ReadInt32();
+
+                        students.Add(new Student { RollNo = rollNo, Subject = subject, Marks = marks });
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("File not found!");
+            }
+
+            return students;
+        }
+    }
+}
