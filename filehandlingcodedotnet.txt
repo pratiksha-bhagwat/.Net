@@ -1,0 +1,96 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+
+namespace filehandling
+{
+    public class Student
+    {
+        public int RollNo { get; set; }
+        public string Subject { get; set; }
+        public int Marks { get; set; }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            List<Student> students = new List<Student>();
+            string filePath = "StudentData.txt";
+
+            Console.WriteLine("Enter the number of students:");
+            int count = int.Parse(Console.ReadLine());
+
+            // Input details of students
+            for (int i = 0; i < count; i++)
+            {
+                Console.WriteLine($"\nEnter details for student {i + 1}:");
+                Console.Write("Roll No: ");
+                int rollNo = int.Parse(Console.ReadLine());
+
+                Console.Write("Subject: ");
+                string subject = Console.ReadLine();
+
+                Console.Write("Marks: ");
+                int marks = int.Parse(Console.ReadLine());
+
+                students.Add(new Student { RollNo = rollNo, Subject = subject, Marks = marks });
+            }
+
+            // Save data to file
+            SaveToFile(students, filePath);
+
+            // Read data from file and display it
+            List<Student> fileData = ReadFromFile(filePath);
+            Console.WriteLine("\nData from file:");
+            foreach (var student in fileData)
+            {
+                Console.WriteLine($"Roll No: {student.RollNo}, Subject: {student.Subject}, Marks: {student.Marks}");
+            }
+        }
+
+        static void SaveToFile(List<Student> students, string filePath)
+        {
+            using (StreamWriter writer = new StreamWriter(filePath))
+            {
+                foreach (var student in students)
+                {
+                    writer.WriteLine($"{student.RollNo},{student.Subject},{student.Marks}");
+                }
+            }
+            Console.WriteLine($"\nData saved to file: {filePath}");
+        }
+
+        static List<Student> ReadFromFile(string filePath)
+        {
+            List<Student> students = new List<Student>();
+
+            if (File.Exists(filePath))
+            {
+                using (StreamReader reader = new StreamReader(filePath))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        string[] parts = line.Split(',');
+                        if (parts.Length == 3)
+                        {
+                            students.Add(new Student
+                            {
+                                RollNo = int.Parse(parts[0]),
+                                Subject = parts[1],
+                                Marks = int.Parse(parts[2])
+                            });
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("File not found!");
+            }
+
+            return students;
+        }
+    }
+}
